@@ -1,3 +1,4 @@
+import server.Handler;
 import server.Server;
 
 import java.io.IOException;
@@ -9,8 +10,12 @@ public class Main {
                 "/spring.png", "/resources.html", "/styles.css", "/app.js",
                 "/links.html", "/forms.html", "/classic.html", "/events.html",
                 "/events.js");
+        Server server = new Server(64);
 
-        Server server = new Server(64, validPaths);
+        for (int i = 0; i < validPaths.size(); i++) {
+            server.addHandler("GET", validPaths.get(i), Handler::okHandler);
+        }
+
         server.listen(9999);
     }
 }

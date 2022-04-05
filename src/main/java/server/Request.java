@@ -16,7 +16,7 @@ public class Request {
         this.in = in;
     }
 
-    public Request getRequest(InputStream in) throws IOException {
+    public static Request getRequest(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String request = reader.readLine();
         String[] parts = request.split(" ");
@@ -40,5 +40,9 @@ public class Request {
 
     public String getPath() {
         return path;
+    }
+
+    public String getMethod() {
+        return method;
     }
 }
