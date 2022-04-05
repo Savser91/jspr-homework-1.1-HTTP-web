@@ -42,17 +42,10 @@ public class Server {
             }
             final var path = parts[1];
             if (!validPaths.contains(path)) {
-                out.write((
-                        "HTTP/1.1 404 Not Found\r\n" +
-                                "Content-Length: 0\r\n" +
-                                "Connection: close\r\n" +
-                                "\r\n"
-                ).getBytes());
-                out.flush();
+
                 return;
             }
-            final var filePath = Path.of(".", "public", path);
-            final var mimeType = Files.probeContentType(filePath);
+
             // special case for classic
             if (path.equals("/classic.html")) {
                 final var template = Files.readString(filePath);
@@ -73,15 +66,7 @@ public class Server {
             }
 
             final var length = Files.size(filePath);
-            out.write((
-                    "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: " + mimeType + "\r\n" +
-                            "Content-Length: " + length + "\r\n" +
-                            "Connection: close\r\n" +
-                            "\r\n"
-            ).getBytes());
-            Files.copy(filePath, out);
-            out.flush();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -37,4 +37,8 @@ public class Request {
 
         return new Request(method, path, headers, in);
     }
+
+    public String getPath() {
+        return path;
+    }
 }
