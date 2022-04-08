@@ -29,12 +29,13 @@ public class Request {
         String method = parts[0];
         String path = parts[1];
         Map<String, String> headers = new HashMap<>();
-        String header = reader.readLine();
-
-        String headerName = header.substring(0, header.indexOf(":"));
-        String headerValue = header.substring(header.indexOf(":") + 2);
-        headers.put(headerName, headerValue);
-
+        String header;
+        while(!(header = reader.readLine()).equals("")) {
+            int index = header.indexOf(":");
+            String headerName = header.substring(0, index);
+            String headerValue = header.substring(index + 2);
+            headers.put(headerName, headerValue);
+        }
         return new Request(method, path, headers, in);
     }
 
@@ -44,5 +45,15 @@ public class Request {
 
     public String getMethod() {
         return method;
+    }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "method='" + method + '\'' +
+                ", path='" + path + '\'' +
+                ", header=" + header +
+                ", in=" + in +
+                '}';
     }
 }

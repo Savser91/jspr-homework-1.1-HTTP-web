@@ -38,6 +38,7 @@ public class Server {
              final var in = socket.getInputStream();
              final var out = new BufferedOutputStream(socket.getOutputStream());) {
             Request request = Request.getRequest(in);
+            System.out.println(request);
             Map<String, Handler> headerMap = handlers.get(request.getMethod());
 
             if (headerMap == null) {
