@@ -37,7 +37,7 @@ public class Server {
         try (socket;
              final var in = socket.getInputStream();
              final var out = new BufferedOutputStream(socket.getOutputStream());) {
-            Request request = Request.getRequest(in);
+            var request = Request.getRequest(in);
             System.out.println(request);
             Map<String, Handler> headerMap = handlers.get(request.getMethod());
 
