@@ -1,6 +1,10 @@
 package server;
 
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import java.io.*;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Request {
@@ -11,6 +15,7 @@ public class Request {
     private String method;
     private String path;
     private Map<String, String> header;
+    private Map<String, String> queryParams = new HashMap<>();
     private String body;
     private InputStream in;
 
@@ -18,6 +23,10 @@ public class Request {
         this.method = method;
         this.path = path;
         this.header = header;
+        var pairs = URLEncodedUtils.parse(URI.create(path), StandardCharsets.UTF_8);
+        for (var pair: pairs) {
+            queryParams.put(pair.getName(), pair.getValue());
+        }
         this.body = body;
         this.in = in;
     }
@@ -91,7 +100,7 @@ public class Request {
             final var contentLength = Optional.ofNullable(headers.get("Content-Length"));
             if (contentLength.isPresent()) {
                 final var length = Integer.parseInt(contentLength.get());
-                final var bodyBytes = in.readNBytes(length);
+                final var bodyBytes = reader.readNBytes(length);
 
                 body = new String(bodyBytes);
                 System.out.println(body);
@@ -109,14 +118,21 @@ public class Request {
         return method;
     }
 
+    public Map<String, String> getQueryParams() {
+        return queryParams;
+    }
+
+    public String getQueryParam(String string) {
+        return queryParams.get(string);
+    }
+
     @Override
     public String toString() {
         return "Request{" +
                 "method='" + method + '\'' +
                 ", path='" + path + '\'' +
                 ", header=" + header +
-                ", body='" + body + '\'' +
-                ", in=" + in +
+                ", queryParams='" + queryParams + '\'' +
                 '}';
     }
 

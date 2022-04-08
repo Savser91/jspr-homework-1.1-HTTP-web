@@ -14,6 +14,7 @@ public class Main {
 
         for (int i = 0; i < validPaths.size(); i++) {
             server.addHandler("GET", validPaths.get(i), Handler::okHandler);
+            server.addHandler("POST", validPaths.get(i), Handler::okHandler);
         }
 
         server.listen(9999);
