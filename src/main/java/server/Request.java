@@ -1,6 +1,10 @@
 package server;
 
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import java.io.*;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Request {
@@ -11,12 +15,19 @@ public class Request {
     private String method;
     private String path;
     private Map<String, String> header;
+    private Map<String, List<String>> queryParams = new HashMap<>();
+    private String body;
     private InputStream in;
 
-    public Request(String method, String path, Map<String, String> header, InputStream in) {
+    public Request(String method, String path, Map<String, String> header, String body, InputStream in) {
         this.method = method;
         this.path = path;
         this.header = header;
+        var pairs = URLEncodedUtils.parse(URI.create(path), StandardCharsets.UTF_8);
+        for (var pair: pairs) {
+            queryParams.computeIfAbsent(pair.getName(), k -> new ArrayList<>()).add(pair.getValue());
+        }
+        this.body = body;
         this.in = in;
     }
 
@@ -82,20 +93,21 @@ public class Request {
         }
 
         // для GET тела нет
+        String body = null;
         if (!method.equals(GET)) {
             reader.skip(headersDelimiter.length);
             // вычитываем Content-Length, чтобы прочитать body
             final var contentLength = Optional.ofNullable(headers.get("Content-Length"));
             if (contentLength.isPresent()) {
                 final var length = Integer.parseInt(contentLength.get());
-                final var bodyBytes = in.readNBytes(length);
+                final var bodyBytes = reader.readNBytes(length);
 
-                final var body = new String(bodyBytes);
+                body = new String(bodyBytes);
                 System.out.println(body);
             }
         }
 
-        return new Request(method, path, headers, in);
+        return new Request(method, path, headers, body, in);
     }
 
     public String getPath() {
@@ -106,13 +118,21 @@ public class Request {
         return method;
     }
 
+    public Map<String, List<String>> getQueryParams() {
+        return queryParams;
+    }
+
+    public List<String> getQueryParam(String string) {
+        return queryParams.get(string);
+    }
+
     @Override
     public String toString() {
         return "Request{" +
                 "method='" + method + '\'' +
                 ", path='" + path + '\'' +
                 ", header=" + header +
-                ", in=" + in +
+                ", queryParams='" + queryParams + '\'' +
                 '}';
     }
 
