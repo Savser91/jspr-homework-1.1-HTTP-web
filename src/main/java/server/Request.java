@@ -15,7 +15,7 @@ public class Request {
     private String method;
     private String path;
     private Map<String, String> header;
-    private Map<String, String> queryParams = new HashMap<>();
+    private Map<String, List<String>> queryParams = new HashMap<>();
     private String body;
     private InputStream in;
 
@@ -25,7 +25,7 @@ public class Request {
         this.header = header;
         var pairs = URLEncodedUtils.parse(URI.create(path), StandardCharsets.UTF_8);
         for (var pair: pairs) {
-            queryParams.put(pair.getName(), pair.getValue());
+            queryParams.computeIfAbsent(pair.getName(), k -> new ArrayList<>()).add(pair.getValue());
         }
         this.body = body;
         this.in = in;
@@ -118,11 +118,11 @@ public class Request {
         return method;
     }
 
-    public Map<String, String> getQueryParams() {
+    public Map<String, List<String>> getQueryParams() {
         return queryParams;
     }
 
-    public String getQueryParam(String string) {
+    public List<String> getQueryParam(String string) {
         return queryParams.get(string);
     }
 
